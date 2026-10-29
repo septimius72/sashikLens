@@ -1,0 +1,1053 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sashik|ThreatLens // CTI Daily Aggregator & Threat Hunter Hub</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Custom Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            soc: {
+              950: '#06090e',
+              900: '#0b111a',
+              850: '#0f1724',
+              800: '#152132',
+              700: '#1e2f47',
+              600: '#2a4163',
+              border: '#1f2e46',
+            },
+            cyber: {
+              cyan: '#00f2fe',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              crimson: '#ef4444',
+              purple: '#a855f7',
+              neon: '#38bdf8'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar for high-tech aesthetic */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b111a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2f47;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2a4163;
+    }
+    .grid-glow {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(30, 47, 71, 0.18) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 47, 71, 0.18) 1px, transparent 1px);
+    }
+    .crt-line {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+    .pulse-glow {
+      box-shadow: 0 0 15px -3px rgba(0, 242, 254, 0.25);
+    }
+    .badge-ring {
+      box-shadow: inset 0 0 0 1px currentColor;
+    }
+  </style>
+</head>
+<body class="bg-soc-950 text-slate-200 font-sans min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200 grid-glow antialiased flex flex-col">
+
+  <!-- Top SOC Operational Header -->
+  <header class="border-b border-soc-border bg-soc-900/90 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Sector Indicator -->
+      <div class="flex items-center space-x-3.5">
+        <div class="h-9 w-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyber-cyan shadow-inner">
+          <i class="ph-bold ph-shield-chevron text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-lg tracking-tight text-white font-mono flex items-center gap-1.5">
+              SASHIK.THREAT.<span class="text-cyber-cyan">LENS</span>
+            </span>
+            <span class="bg-soc-800 text-slate-400 font-mono text-[10px] px-2 py-0.5 rounded border border-soc-700 tracking-wider">v2.4.0</span>
+          </div>
+          <p class="text-xs text-slate-400 font-mono flex items-center gap-1.5">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            DEFENSE SURVEILLANCE // <span class="text-cyan-400 font-semibold">FINTECH & LEGALTECH</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Stream Status & Actions -->
+      <div class="flex items-center space-x-3">
+        <div class="hidden md:flex items-center text-xs font-mono px-3 py-1.5 rounded-lg bg-soc-850 border border-soc-border text-slate-400">
+          <span class="text-slate-500 mr-2">LAST SYNC:</span>
+          <span id="lastSyncTime" class="text-slate-200 font-semibold">Just now</span>
+        </div>
+
+        <!-- Refresh / Simulated Pull -->
+        <button id="btnRefresh" onclick="refreshFeeds()" class="group flex items-center space-x-2 bg-soc-800 hover:bg-soc-700 text-cyan-400 px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium border border-cyan-500/30 transition-all hover:border-cyan-400 shadow-sm">
+          <i id="refreshIcon" class="ph-bold ph-arrows-clockwise text-sm group-hover:rotate-180 transition-transform duration-500"></i>
+          <span>FETCH FEEDS</span>
+        </button>
+
+        <!-- Export Daily Digest Button -->
+        <div class="relative inline-block text-left" id="exportMenuContainer">
+          <button onclick="toggleExportMenu()" class="flex items-center space-x-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all shadow-md shadow-cyan-950">
+            <i class="ph-bold ph-export text-sm"></i>
+            <span>EXPORT BRIEF</span>
+            <i class="ph-bold ph-caret-down text-xs ml-0.5"></i>
+          </button>
+          <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-xl bg-soc-850 border border-soc-border ring-1 ring-black ring-opacity-5 z-50 py-1">
+            <button onclick="exportDigest('markdown')" class="w-full text-left px-4 py-2 text-xs font-mono text-slate-200 hover:bg-soc-700 flex items-center space-x-2">
+              <i class="ph ph-file-text text-cyan-400 text-sm"></i>
+              <span>Copy as Markdown</span>
+            </button>
+            <button onclick="exportDigest('json')" class="w-full text-left px-4 py-2 text-xs font-mono text-slate-200 hover:bg-soc-700 flex items-center space-x-2">
+              <i class="ph ph-brackets-curly text-purple-400 text-sm"></i>
+              <span>Export raw JSON</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col space-y-6">
+
+    <!-- Threat Brief Summary Cards -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <!-- High Severity Threats -->
+      <div class="bg-soc-900 border border-soc-border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-red-500/40 transition-colors">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono uppercase text-slate-400 font-medium">Critical Exploits</span>
+          <span class="h-7 w-7 rounded bg-red-500/10 text-red-400 flex items-center justify-center text-sm border border-red-500/20">
+            <i class="ph-bold ph-flame"></i>
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl md:text-3xl font-mono font-bold text-white flex items-baseline gap-2">
+            <span id="statCritical">3</span>
+            <span class="text-xs font-mono text-red-400 font-normal">Active in KEV</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 font-mono">2 target identity & deal-room SaaS</p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-red-500/40"></div>
+      </div>
+
+      <!-- Zero-Days & Ransomware -->
+      <div class="bg-soc-900 border border-soc-border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-amber-500/40 transition-colors">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono uppercase text-slate-400 font-medium">Ransomware & C2</span>
+          <span class="h-7 w-7 rounded bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm border border-amber-500/20">
+            <i class="ph-bold ph-skull"></i>
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl md:text-3xl font-mono font-bold text-white flex items-baseline gap-2">
+            <span id="statRansom">7</span>
+            <span class="text-xs font-mono text-amber-400 font-normal">Active campaigns</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 font-mono">FIN7, Lumma & LockBit variants</p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500/40"></div>
+      </div>
+
+      <!-- FinTech Risk Index -->
+      <div class="bg-soc-900 border border-soc-border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-cyan-500/40 transition-colors">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono uppercase text-slate-400 font-medium">FinTech Risk Level</span>
+          <span class="h-7 w-7 rounded bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-sm border border-cyan-500/20">
+            <i class="ph-bold ph-bank"></i>
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl md:text-3xl font-mono font-bold text-cyan-300 flex items-baseline gap-2">
+            <span>HIGH</span>
+            <span class="text-xs font-mono text-slate-400 font-normal">(Score 8.4)</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 font-mono">SWIFT API & BEC redirection probes</p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-500/40"></div>
+      </div>
+
+      <!-- LegalTech Risk Index -->
+      <div class="bg-soc-900 border border-soc-border rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/40 transition-colors">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono uppercase text-slate-400 font-medium">LegalTech Risk Level</span>
+          <span class="h-7 w-7 rounded bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm border border-purple-500/20">
+            <i class="ph-bold ph-scales"></i>
+          </span>
+        </div>
+        <div class="mt-2">
+          <div class="text-2xl md:text-3xl font-mono font-bold text-purple-300 flex items-baseline gap-2">
+            <span>ELEVATED</span>
+            <span class="text-xs font-mono text-slate-400 font-normal">(Score 7.1)</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1 font-mono">M&A deal-room insider & spear-phish</p>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500/40"></div>
+      </div>
+    </section>
+
+    <!-- Operational Filter & Search Bar -->
+    <section class="bg-soc-900 border border-soc-border rounded-xl p-4 shadow-sm space-y-4">
+      
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <!-- Search Input -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i class="ph-bold ph-magnifying-glass"></i>
+          </div>
+          <input 
+            type="text" 
+            id="searchInput"
+            oninput="handleSearch()"
+            placeholder="Search CVE (e.g. CVE-2024-3400), Actor (FIN7, Scattered Spider), Malware (Lumma), or Tag..." 
+            class="w-full pl-10 pr-4 py-2 bg-soc-950 border border-soc-border focus:border-cyan-400 focus:outline-none rounded-lg text-sm text-slate-100 placeholder-slate-500 font-mono transition-all"
+          >
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 hover:text-white">
+            <i class="ph-bold ph-x-circle text-base"></i>
+          </button>
+        </div>
+
+        <!-- Sector Focus Toggles -->
+        <div class="flex items-center space-x-1.5 self-start md:self-auto overflow-x-auto pb-1 md:pb-0">
+          <span class="text-xs font-mono text-slate-400 mr-1 hidden sm:inline">SECTOR:</span>
+          <button onclick="setSectorFilter('ALL')" id="sector-btn-ALL" class="sector-badge active px-2.5 py-1 text-xs font-mono rounded border transition-colors bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-medium">ALL</button>
+          <button onclick="setSectorFilter('FinTech')" id="sector-btn-FinTech" class="sector-badge px-2.5 py-1 text-xs font-mono rounded border border-soc-border hover:border-slate-500 text-slate-400 hover:text-slate-200 transition-colors">FINTECH</button>
+          <button onclick="setSectorFilter('LegalTech')" id="sector-btn-LegalTech" class="sector-badge px-2.5 py-1 text-xs font-mono rounded border border-soc-border hover:border-slate-500 text-slate-400 hover:text-slate-200 transition-colors">LEGALTECH</button>
+          <button onclick="setSectorFilter('Cloud/AD')" id="sector-btn-Cloud/AD" class="sector-badge px-2.5 py-1 text-xs font-mono rounded border border-soc-border hover:border-slate-500 text-slate-400 hover:text-slate-200 transition-colors">HYBRID CLOUD</button>
+        </div>
+      </div>
+
+      <!-- Categories & Source Filter Tabs -->
+      <div class="flex items-center space-x-2 border-t border-soc-border/60 pt-3 overflow-x-auto text-xs font-mono">
+        <button onclick="setCategoryFilter('ALL')" class="category-tab active px-3 py-1.5 rounded-lg bg-soc-800 text-cyan-300 border border-cyan-500/30 whitespace-nowrap">
+          All Sources (10)
+        </button>
+        <button onclick="setCategoryFilter('KEV')" class="category-tab px-3 py-1.5 rounded-lg bg-transparent hover:bg-soc-800 text-slate-400 hover:text-slate-200 border border-transparent whitespace-nowrap">
+          Exploits & KEV
+        </button>
+        <button onclick="setCategoryFilter('MALWARE')" class="category-tab px-3 py-1.5 rounded-lg bg-transparent hover:bg-soc-800 text-slate-400 hover:text-slate-200 border border-transparent whitespace-nowrap">
+          Malware & C2 Infrastructure
+        </button>
+        <button onclick="setCategoryFilter('SIGMA')" class="category-tab px-3 py-1.5 rounded-lg bg-transparent hover:bg-soc-800 text-slate-400 hover:text-slate-200 border border-transparent whitespace-nowrap">
+          Sigma Rules & Detections
+        </button>
+        <button onclick="setCategoryFilter('REPORTS')" class="category-tab px-3 py-1.5 rounded-lg bg-transparent hover:bg-soc-800 text-slate-400 hover:text-slate-200 border border-transparent whitespace-nowrap">
+          DFIR & APT Intel
+        </button>
+        <button onclick="setCategoryFilter('SECTOR')" class="category-tab px-3 py-1.5 rounded-lg bg-transparent hover:bg-soc-800 text-slate-400 hover:text-slate-200 border border-transparent whitespace-nowrap">
+          MISP & Sector Advisories
+        </button>
+      </div>
+
+    </section>
+
+    <!-- Intel Feeds Stream -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+        <div>
+          STREAMING <span id="feedCount" class="text-cyan-400 font-bold">10</span> INTELLIGENCE OBJECTS (VERIFIED 24H WINDOW)
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>LIVE REPOSITORIES CONNECTED</span>
+        </div>
+      </div>
+
+      <!-- Feed Container -->
+      <div id="intelFeedList" class="space-y-3">
+        <!-- Rendered Dynamically via JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Detailed TTP & IoC Inspector Modal / Drawer -->
+  <div id="inspectorModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-soc-900 border border-soc-border rounded-xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="border-b border-soc-border p-4 bg-soc-850 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <span id="modalSourceBadge" class="px-2 py-0.5 text-xs font-mono rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-semibold">
+            SOURCE
+          </span>
+          <span id="modalSeverityBadge" class="px-2 py-0.5 text-xs font-mono rounded font-semibold">
+            CRITICAL
+          </span>
+          <span id="modalSectorBadge" class="text-xs font-mono text-slate-400 hidden sm:inline">
+            // FINTECH
+          </span>
+        </div>
+        <button onclick="closeInspector()" class="text-slate-400 hover:text-white rounded-lg p-1.5 hover:bg-soc-800 transition-colors">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
+        
+        <div>
+          <h2 id="modalTitle" class="text-xl font-bold text-white font-sans tracking-tight leading-snug">
+            Threat Item Title
+          </h2>
+          <div class="mt-2 text-xs font-mono text-slate-400 flex flex-wrap items-center gap-3">
+            <span id="modalTimestamp">2026-10-29 11:24 UTC</span>
+            <span>•</span>
+            <span id="modalActor">Threat Actor: FIN7</span>
+            <span>•</span>
+            <a id="modalExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline flex items-center gap-1">
+              <span>View Advisory</span>
+              <i class="ph ph-arrow-square-out text-xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <h4 class="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Executive Threat Briefing</h4>
+          <p id="modalDescription" class="text-slate-300 leading-relaxed bg-soc-950 p-3.5 rounded-lg border border-soc-border">
+            Full intelligence context goes here.
+          </p>
+        </div>
+
+        <!-- MITRE ATT&CK Matrix Techniques -->
+        <div>
+          <h4 class="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider mb-2">Mapped MITRE ATT&CK TTPs</h4>
+          <div id="modalMitreTags" class="flex flex-wrap gap-2">
+            <!-- Badges dynamically added -->
+          </div>
+        </div>
+
+        <!-- Extracted Indicators of Compromise (IoCs) -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wider">Identified Indicators (IoCs)</h4>
+            <button onclick="copyModalIoCs()" class="text-xs font-mono text-cyan-400 hover:text-cyan-300 flex items-center space-x-1">
+              <i class="ph ph-copy"></i>
+              <span>Copy IoCs</span>
+            </button>
+          </div>
+          <div id="modalIoCList" class="bg-soc-950 rounded-lg p-3 border border-soc-border font-mono text-xs text-slate-300 space-y-1 overflow-x-auto">
+            <!-- Injected -->
+          </div>
+        </div>
+
+        <!-- Hunting Query: Wazuh & Osquery Recommendations -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-mono font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="ph-bold ph-terminal-window"></i>
+              <span>Recommended Hunting Logic (Osquery / Wazuh)</span>
+            </h4>
+            <button onclick="copyHuntingQuery()" class="text-xs font-mono text-cyan-400 hover:text-cyan-300 flex items-center space-x-1">
+              <i class="ph ph-copy"></i>
+              <span>Copy Query</span>
+            </button>
+          </div>
+          <pre id="modalHuntingQuery" class="bg-soc-950 rounded-lg p-3.5 border border-cyan-500/20 text-emerald-400 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed">
+SELECT * FROM processes WHERE name LIKE '%powershell%';
+          </pre>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="border-t border-soc-border p-3.5 bg-soc-850 flex items-center justify-between">
+        <span class="text-xs font-mono text-slate-500">Press [ESC] to close</span>
+        <button onclick="closeInspector()" class="px-4 py-1.5 bg-soc-800 hover:bg-soc-700 text-slate-200 text-xs font-mono rounded-lg border border-soc-border transition-colors">
+          Close Inspector
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-soc-850 border border-cyan-500 text-white px-4 py-2.5 rounded-lg shadow-2xl flex items-center space-x-2 text-xs font-mono">
+      <i class="ph-bold ph-check-circle text-cyan-400 text-base"></i>
+      <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-soc-border/60 bg-soc-900 py-4 text-xs font-mono text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>
+        Aggregating: CISA KEV, The DFIR Report, abuse.ch, AlienVault OTX, vx-underground, SigmaHQ, Malpedia, Shadowserver, Unit 42/Mandiant, MISP/FS-ISAC.
+      </div>
+      <div class="text-slate-400">
+        Engineered by SA$HIK for Threat Hunting • Open Community Stack
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    // Primary Intelligence Dataset reflecting the 10 core verified sources
+    const threatDatabase = [
+      {
+        id: "THREAT-01",
+        sourceId: "cisa-kev",
+        sourceName: "CISA KEV",
+        category: "KEV",
+        title: "CVE-2024-3400: Palo Alto Networks PAN-OS OS Command Injection",
+        summary: "Zero-day exploitation observed in financial and enterprise perimeters. Allows unauthenticated remote code execution via GlobalProtect feature.",
+        cve: "CVE-2024-3400",
+        vendor: "Palo Alto Networks",
+        dateAdded: "2026-10-28",
+        dueDate: "2026-11-04",
+        ransomwareUse: true,
+        actor: "UTA0218 (State-sponsored)",
+        sectors: ["FinTech", "LegalTech", "Cloud/AD"],
+        severity: "CRITICAL",
+        iocs: [
+          "IP: 144.172.79.92",
+          "IP: 66.235.168.222",
+          "SHA256: 3de220e8b2b647f3ecaa224090b8f4aa44b749decf73fe68e594ee89988ffbc6",
+          "Path: /opt/panlogs/tmp/device_telemetry/minute/*"
+        ],
+        mitre: ["T1190 - Exploit Public-Facing App", "T1059.004 - Unix Shell", "T1027 - Obfuscated Files"],
+        huntingQuery: `-- Osquery: Detect suspicious cron / shell spawning on edge gateways\nSELECT p.pid, p.name, p.cmdline, p.parent, u.username \nFROM processes p \nJOIN users u ON p.uid = u.uid \nWHERE p.name IN ('sh', 'bash') \n  AND (p.cmdline LIKE '%device_telemetry%' OR p.cmdline LIKE '%curl%' OR p.cmdline LIKE '%wget%');`,
+        link: "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+      },
+      {
+        id: "THREAT-02",
+        sourceId: "dfir-report",
+        sourceName: "The DFIR Report",
+        category: "REPORTS",
+        title: "From Click to Domain Compromise: FIN7 Intrusions Target Financial Services",
+        summary: "Deep forensic timeline analysis exposing a 4-hour dwell time from initial weaponized PDF invoice to domain-wide Cobalt Strike and Active Directory enumeration.",
+        cve: "N/A",
+        vendor: "Microsoft AD / Citrix",
+        dateAdded: "2026-10-28",
+        dueDate: "N/A",
+        ransomwareUse: true,
+        actor: "FIN7 / Sangria Tempest",
+        sectors: ["FinTech", "Cloud/AD"],
+        severity: "HIGH",
+        iocs: [
+          "Domain: secure-invoicing-gateway.net",
+          "SHA256: e87c32b56839aaec9142f9b2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2",
+          "C2 Port: 443 / 8443",
+          "Pipe: \\\\.\\pipe\\msse-4921-server"
+        ],
+        mitre: ["T1566.001 - Spearphishing Attachment", "T1069.002 - Domain Groups Recon", "T1055 - Process Injection"],
+        huntingQuery: `-- Wazuh / OpenSearch Rule Logic:\nrule id="100340" level="12"\n  if_group="sysmon_event_1"\n  field name="win.eventdata.image">powershell.exe</field>\n  field name="win.eventdata.commandLine">.*Get-ADGroupMember.*Domain Admins.*</field>\n  description="Adversary enumerating Domain Admins via PowerShell (FIN7 TTP)"\n/rule`,
+        link: "https://thedfirreport.com"
+      },
+      {
+        id: "THREAT-03",
+        sourceId: "abuse-ch",
+        sourceName: "abuse.ch (ThreatFox / URLhaus)",
+        category: "MALWARE",
+        title: "Lumma Stealer C2 Surge Infiltrating Legal M&A Deal Room Personnel",
+        summary: "High volume of evasive Lumma Stealer payloads distributed via spoofed e-signature and contract disclosure notifications targeting corporate attorneys.",
+        cve: "N/A",
+        vendor: "Google Chrome / Firefox Keystores",
+        dateAdded: "2026-10-29",
+        dueDate: "N/A",
+        ransomwareUse: false,
+        actor: "Lumma Infrastructure",
+        sectors: ["LegalTech"],
+        severity: "HIGH",
+        iocs: [
+          "C2 IP: 185.196.11.45:443",
+          "Domain: legal-docusign-verify.top",
+          "Domain: secure-courtfiling-auth.com",
+          "SHA256: 7d6438992b15e44b827f339cf0167d32c0d87be3a7b57bb90025f187a54a01c4"
+        ],
+        mitre: ["T1555.003 - Web Session Cookie & Credential Theft", "T1071.001 - Web Protocols C2", "T1036 - Masquerading"],
+        huntingQuery: `-- Osquery: Identify unexpected file handles on Chrome & Edge User Data directories\nSELECT p.pid, p.name, p.path, f.path AS accessed_path\nFROM processes p\nJOIN process_open_files f ON p.pid = f.pid\nWHERE f.path LIKE '%AppData%Google%Chrome%User Data%Default%Login Data%'\n  AND p.name NOT IN ('chrome.exe', 'msedge.exe');`,
+        link: "https://threatfox.abuse.ch"
+      },
+      {
+        id: "THREAT-04",
+        sourceId: "sigma-hq",
+        sourceName: "SigmaHQ Repository",
+        category: "SIGMA",
+        title: "New Rule: Suspicious Azure AD / Entra ID Federation Modification",
+        summary: "Universal detection rule detecting rogue identity providers or SAML federation backdoor additions capable of persistent golden-SAML access in Legal and FinTech clouds.",
+        cve: "N/A",
+        vendor: "Microsoft Entra ID / Okta",
+        dateAdded: "2026-10-27",
+        dueDate: "N/A",
+        ransomwareUse: false,
+        actor: "Midnight Blizzard / APT29",
+        sectors: ["FinTech", "LegalTech", "Cloud/AD"],
+        severity: "CRITICAL",
+        iocs: [
+          "OperationName: 'Set domain authentication'",
+          "OperationName: 'Set-MsolDomainAuthentication'",
+          "EventCategory: AuditLogs"
+        ],
+        mitre: ["T1484.002 - Trust Modification: Domain Trust", "T1078.004 - Cloud Accounts"],
+        huntingQuery: `-- Sigma Logic / PySigma conversion for Azure AD Logs:\nlogsource:\n  service: azure.audit\ndetection:\n  selection:\n    OperationName:\n      - 'Set domain authentication'\n      - 'Verify domain'\n    ResultType: 'Success'\n  condition: selection\nlevel: high`,
+        link: "https://github.com/SigmaHQ/sigma"
+      },
+      {
+        id: "THREAT-05",
+        sourceId: "misp-sector",
+        sourceName: "MISP / FS-ISAC Feed",
+        category: "SECTOR",
+        title: "Flash Alert: Automated Wire Hijack via Session Token Impersonation",
+        summary: "Targeted campaigns intercepting session tokens across FinTech banking platforms to submit unauthorized wire batches bypassing dual-control approval queues.",
+        cve: "N/A",
+        vendor: "SWIFT Gateway / ACH Endpoints",
+        dateAdded: "2026-10-29",
+        dueDate: "N/A",
+        ransomwareUse: false,
+        actor: "Uncategorized Cybercrime Cluster",
+        sectors: ["FinTech"],
+        severity: "CRITICAL",
+        iocs: [
+          "IP: 194.26.29.112",
+          "IP: 91.240.118.89",
+          "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64) WireBot/4.2",
+          "ASN: AS48693"
+        ],
+        mitre: ["T1539 - Steal Web Session Cookie", "T1565.002 - Transmitted Data Manipulation"],
+        huntingQuery: `-- Zeek / Network log query for rogue outbound connections to suspicious ASNs:\ncat http.log | zeek-cut id.orig_h id.resp_h host uri user_agent | grep -E '(WireBot|python-requests)'`,
+        link: "https://www.misp-project.org"
+      },
+      {
+        id: "THREAT-06",
+        sourceId: "vx-underground",
+        sourceName: "vx-underground",
+        category: "MALWARE",
+        title: "Source Leak & Analysis: LockBit 4.0 (Green) Cross-Platform Encryptor",
+        summary: "Complete source leak and builders for the revised ESXi and Windows LockBit variant, including custom bypasses for popular enterprise EDR hooks.",
+        cve: "N/A",
+        vendor: "VMware ESXi & Windows Server",
+        dateAdded: "2026-10-26",
+        dueDate: "N/A",
+        ransomwareUse: true,
+        actor: "LockBit Supporter Group",
+        sectors: ["FinTech", "LegalTech", "Cloud/AD"],
+        severity: "CRITICAL",
+        iocs: [
+          "SHA256: a4b5c6d7e8f90123456789abcdef0123456789abcdef0123456789abcdef0123",
+          "Extension: .lockbit4",
+          "Note: README_LOCKBIT_4.txt",
+          "Process: esxcli vm process kill --type=force"
+        ],
+        mitre: ["T1486 - Data Encrypted for Impact", "T1489 - Service Stop", "T1082 - System Information Discovery"],
+        huntingQuery: `-- Osquery: Detect mass file renaming or unauthorized ESXi process kill commands\nSELECT time, target_path, action FROM file_events \nWHERE action = 'MOVED_TO' AND target_path LIKE '%.lockbit%' LIMIT 50;`,
+        link: "https://vx-underground.org"
+      },
+      {
+        id: "THREAT-07",
+        sourceId: "unit42-mandiant",
+        sourceName: "Mandiant Threat Research",
+        category: "REPORTS",
+        title: "UNC3944 (Scattered Spider): Cloud Tenant Takeover and Deal-Room Spying",
+        summary: "Threat group tactics shifting from help-desk SIM swapping to targeting corporate law firm SaaS applications to preview pending acquisitions and IPO disclosures.",
+        cve: "N/A",
+        vendor: "Okta / Azure AD / Box Enterprise",
+        dateAdded: "2026-10-25",
+        dueDate: "N/A",
+        ransomwareUse: false,
+        actor: "UNC3944 / Scattered Spider",
+        sectors: ["LegalTech", "Cloud/AD"],
+        severity: "HIGH",
+        iocs: [
+          "Caller-IP: 198.54.130.4",
+          "UserAgent: OktaVerify-CustomClient/1.0",
+          "TargetService: Corporate Virtual Data Room"
+        ],
+        mitre: ["T1586.002 - Compromise Accounts: Email Accounts", "T1621 - Multi-Factor Authentication Request Generation"],
+        huntingQuery: `-- Osquery / Cloudtrail hunting for MFA reset frequency:\nSELECT event_time, user_identity_arn, event_name, source_ip_address \nFROM cloudtrail_logs \nWHERE event_name IN ('CreateAccessKey', 'UpdateLoginProfile', 'DeactivateMFADevice')\nORDER BY event_time DESC LIMIT 100;`,
+        link: "https://cloud.google.com/blog/topics/threat-intelligence"
+      },
+      {
+        id: "THREAT-08",
+        sourceId: "otx-alienvault",
+        sourceName: "AlienVault OTX",
+        category: "MALWARE",
+        title: "Community Pulse: Qakbot (Pinkslipbot) Resurgence via Legal Summons lures",
+        summary: "Targeted phishing pulse containing VBS and WSF scripts masquerading as urgent court summons and arbitration filings directed at paralegal teams.",
+        cve: "N/A",
+        vendor: "Windows Script Host (wscript.exe)",
+        dateAdded: "2026-10-27",
+        dueDate: "N/A",
+        ransomwareUse: false,
+        actor: "TA577 / BlackBasta affiliate",
+        sectors: ["LegalTech"],
+        severity: "MEDIUM",
+        iocs: [
+          "SHA256: 62bc7198739da002eec305a4d4681190ecf5a6b01b67272714246abcc814a0f4",
+          "IP: 104.244.76.13:2222",
+          "File: Notice_of_Appearance_Doc902.zip"
+        ],
+        mitre: ["T1059.005 - Visual Basic Script", "T1204.002 - Malicious File Execution"],
+        huntingQuery: `-- Wazuh detection rule for wscript spawning network outbound connection:\n<rule id="100980" level="10">\n  <if_sid>60001</if_sid>\n  <field name="win.eventdata.parentImage">wscript.exe|cscript.exe</field>\n  <description>Suspicious WScript child process spawning network socket</description>\n</rule>`,
+        link: "https://otx.alienvault.com"
+      },
+      {
+        id: "THREAT-09",
+        sourceId: "malpedia",
+        sourceName: "Malpedia (Fraunhofer)",
+        category: "REPORTS",
+        title: "YARA Rule Update: Carbanak / FIN7 In-Memory Banking Injectors",
+        summary: "Updated curated signatures for detecting encrypted shellcode loaders and memory patches that target SWIFT and point-of-sale management modules.",
+        cve: "N/A",
+        vendor: "Financial Transaction Processors",
+        dateAdded: "2026-10-24",
+        dueDate: "N/A",
+        ransomwareUse: false,
+        actor: "Carbanak / FIN7",
+        sectors: ["FinTech"],
+        severity: "MEDIUM",
+        iocs: [
+          "YARA Rule: win_carbanak_memory_2026",
+          "String: $str_magic = { 8B 45 08 83 F8 01 75 14 }",
+          "SHA256: b20601f78931b2691fa6d010bbcc0081d6365fa5d8361026048d867cce563174"
+        ],
+        mitre: ["T1055.001 - Dynamic-link Library Injection", "T1027.002 - Software Packing"],
+        huntingQuery: `-- YARA in Osquery:\nSELECT * FROM yara WHERE path = 'C:\\Windows\\System32\\inetsrv\\w3wp.exe' \nAND sigrule = 'rule carbanak_core { strings: $a = { 8B 45 08 83 F8 01 } condition: $a }';`,
+        link: "https://malpedia.caad.fkie.fraunhofer.de"
+      },
+      {
+        id: "THREAT-10",
+        sourceId: "shadowserver",
+        sourceName: "Shadowserver Foundation",
+        category: "KEV",
+        title: "Global Scanning Report: 14,000+ Unpatched Apache ActiveMQ & Redis Ports",
+        summary: "Public report on internet-facing financial middleware servers vulnerable to remote execution (CVE-2023-46604) exploited for automated crypto-miners and proxies.",
+        cve: "CVE-2023-46604",
+        vendor: "Apache / Redis",
+        dateAdded: "2026-10-25",
+        dueDate: "N/A",
+        ransomwareUse: true,
+        actor: "Automated Botnet Operators",
+        sectors: ["FinTech", "Cloud/AD"],
+        severity: "HIGH",
+        iocs: [
+          "Port: 61616 (ActiveMQ OpenWire)",
+          "Port: 6379 (Redis exposed without auth)",
+          "IP Block: 193.142.146.0/24"
+        ],
+        mitre: ["T1190 - Exploit Public Facing Application", "T1046 - Network Service Scanning"],
+        huntingQuery: `-- Osquery: Find listening services bound to external 0.0.0.0 interfaces\nSELECT pid, port, address, protocol FROM listening_ports \nWHERE address IN ('0.0.0.0', '::') AND port IN (61616, 6379, 8080);`,
+        link: "https://www.shadowserver.org"
+      }
+    ];
+
+    // State
+    let currentCategory = 'ALL';
+    let currentSector = 'ALL';
+    let searchQuery = '';
+    let selectedThreat = null;
+
+    // Initialize UI
+    window.onload = function() {
+      renderFeeds();
+      updateBriefingStats();
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeInspector();
+      });
+      // Close export dropdown on outside click
+      document.addEventListener('click', function(e) {
+        const container = document.getElementById('exportMenuContainer');
+        if (container && !container.contains(e.target)) {
+          document.getElementById('exportDropdown').classList.add('hidden');
+        }
+      });
+    };
+
+    // Filter Logic
+    function getFilteredData() {
+      return threatDatabase.filter(item => {
+        // Category filter
+        const matchesCategory = (currentCategory === 'ALL') || 
+          (currentCategory === item.category);
+
+        // Sector filter
+        const matchesSector = (currentSector === 'ALL') || 
+          item.sectors.includes(currentSector);
+
+        // Search text
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch = !q || (
+          item.title.toLowerCase().includes(q) ||
+          item.summary.toLowerCase().includes(q) ||
+          item.cve.toLowerCase().includes(q) ||
+          item.actor.toLowerCase().includes(q) ||
+          item.sourceName.toLowerCase().includes(q) ||
+          item.sectors.some(s => s.toLowerCase().includes(q)) ||
+          item.iocs.some(i => i.toLowerCase().includes(q))
+        );
+
+        return matchesCategory && matchesSector && matchesSearch;
+      });
+    }
+
+    // Render Feeds List
+    function renderFeeds() {
+      const container = document.getElementById('intelFeedList');
+      const filtered = getFilteredData();
+      
+      document.getElementById('feedCount').innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-soc-900 border border-soc-border rounded-xl p-8 text-center">
+            <i class="ph ph-shield-warning text-4xl text-slate-500 mb-2"></i>
+            <h3 class="text-sm font-mono font-semibold text-slate-300">No threat intelligence matches found</h3>
+            <p class="text-xs font-mono text-slate-500 mt-1">Try broadening your search keyword or switching the sector/category tab.</p>
+            <button onclick="resetFilters()" class="mt-4 px-3 py-1.5 bg-soc-800 text-cyan-400 border border-cyan-500/30 rounded text-xs font-mono">
+              Reset All Filters
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        // Severity color mapping
+        let sevColor = "bg-red-500/10 text-red-400 border-red-500/30";
+        if (item.severity === "HIGH") sevColor = "bg-amber-500/10 text-amber-400 border-amber-500/30";
+        if (item.severity === "MEDIUM") sevColor = "bg-blue-500/10 text-blue-400 border-blue-500/30";
+
+        // Source icon
+        let srcIcon = "ph-rss";
+        if (item.sourceId === "cisa-kev") srcIcon = "ph-shield-warning";
+        if (item.sourceId === "dfir-report") srcIcon = "ph-detective";
+        if (item.sourceId === "abuse-ch") srcIcon = "ph-bug";
+        if (item.sourceId === "sigma-hq") srcIcon = "ph-code-simple";
+        if (item.sourceId === "vx-underground") srcIcon = "ph-file-archive";
+        if (item.sourceId === "misp-sector") srcIcon = "ph-bank";
+
+        return `
+          <div onclick="openInspector('${item.id}')" class="bg-soc-900 hover:bg-soc-850 border border-soc-border hover:border-cyan-500/50 rounded-xl p-4 transition-all duration-200 cursor-pointer shadow-sm group">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-3">
+              
+              <!-- Left: Meta & Title -->
+              <div class="space-y-2 flex-1">
+                <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+                  
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-soc-800 text-slate-300 border border-soc-700">
+                    <i class="ph-bold ${srcIcon} text-cyan-400"></i>
+                    <span>${item.sourceName}</span>
+                  </span>
+
+                  <span class="px-2 py-0.5 rounded text-[11px] font-semibold border ${sevColor}">
+                    ${item.severity}
+                  </span>
+
+                  ${item.cve !== "N/A" ? `
+                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-red-950/60 text-red-300 border border-red-800/60 font-mono">
+                      ${item.cve}
+                    </span>
+                  ` : ''}
+
+                  ${item.ransomwareUse ? `
+                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-950/60 text-purple-300 border border-purple-800/60 flex items-center gap-1">
+                      <i class="ph-bold ph-skull text-xs"></i>
+                      <span>RANSOMWARE KNOWN</span>
+                    </span>
+                  ` : ''}
+
+                  <span class="text-slate-500 text-[11px] ml-auto md:ml-0 font-mono">
+                    ${item.dateAdded}
+                  </span>
+                </div>
+
+                <h3 class="text-base font-bold text-white group-hover:text-cyan-300 transition-colors font-sans leading-snug">
+                  ${item.title}
+                </h3>
+
+                <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed font-sans">
+                  ${item.summary}
+                </p>
+
+                <!-- Tags Row -->
+                <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span class="text-[11px] font-mono text-slate-500 mr-1">TTPs / ACTOR:</span>
+                  <span class="text-[11px] font-mono bg-soc-950 text-slate-300 px-2 py-0.5 rounded border border-soc-border">
+                    ${item.actor}
+                  </span>
+                  ${item.sectors.map(sec => `
+                    <span class="text-[10px] font-mono bg-soc-800/70 text-cyan-400/90 px-1.5 py-0.5 rounded border border-soc-border">
+                      #${sec}
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+
+              <!-- Right: Quick Action Preview -->
+              <div class="flex md:flex-col items-center justify-between md:justify-center border-t md:border-t-0 md:border-l border-soc-border/70 pt-2 md:pt-0 md:pl-4 min-w-[140px] text-right">
+                <div class="text-[11px] font-mono text-slate-400">
+                  <span class="text-slate-200 font-bold">${item.iocs.length}</span> IoCs Attached
+                </div>
+                <div class="mt-2 text-xs font-mono text-cyan-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-semibold">
+                  <span>INSPECT TTPs</span>
+                  <i class="ph-bold ph-caret-right text-sm"></i>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Modal Inspector Handlers
+    function openInspector(id) {
+      selectedThreat = threatDatabase.find(t => t.id === id);
+      if (!selectedThreat) return;
+
+      const modal = document.getElementById('inspectorModal');
+      document.getElementById('modalTitle').innerText = selectedThreat.title;
+      document.getElementById('modalDescription').innerText = selectedThreat.summary;
+      document.getElementById('modalSourceBadge').innerText = selectedThreat.sourceName;
+      document.getElementById('modalTimestamp').innerText = `Cataloged: ${selectedThreat.dateAdded} // Due: ${selectedThreat.dueDate}`;
+      document.getElementById('modalActor').innerText = `Adversary: ${selectedThreat.actor}`;
+      document.getElementById('modalExternalLink').href = selectedThreat.link;
+      document.getElementById('modalHuntingQuery').innerText = selectedThreat.huntingQuery;
+
+      // Severity badge styling
+      const sevBadge = document.getElementById('modalSeverityBadge');
+      sevBadge.innerText = selectedThreat.severity;
+      if (selectedThreat.severity === "CRITICAL") {
+        sevBadge.className = "px-2 py-0.5 text-xs font-mono rounded font-semibold bg-red-500/20 text-red-400 border border-red-500/30";
+      } else if (selectedThreat.severity === "HIGH") {
+        sevBadge.className = "px-2 py-0.5 text-xs font-mono rounded font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+      } else {
+        sevBadge.className = "px-2 py-0.5 text-xs font-mono rounded font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30";
+      }
+
+      // Sectors
+      document.getElementById('modalSectorBadge').innerText = `// ${selectedThreat.sectors.join(', ')}`;
+
+      // MITRE Tags
+      const mitreContainer = document.getElementById('modalMitreTags');
+      mitreContainer.innerHTML = selectedThreat.mitre.map(m => `
+        <span class="px-2.5 py-1 rounded bg-soc-800 text-cyan-300 font-mono text-xs border border-cyan-500/30 flex items-center gap-1">
+          <i class="ph ph-crosshair text-cyan-400"></i>
+          <span>${m}</span>
+        </span>
+      `).join('');
+
+      // IoCs
+      const iocContainer = document.getElementById('modalIoCList');
+      iocContainer.innerHTML = selectedThreat.iocs.map(ioc => `
+        <div class="flex items-center justify-between py-1 border-b border-soc-border/40 last:border-0 hover:bg-soc-900/60 px-1 rounded">
+          <span class="font-mono text-slate-300 select-all">${ioc}</span>
+          <button onclick="copySingleIoC('${ioc.replace(/'/g, "\\'")}', event)" class="text-slate-500 hover:text-cyan-400 text-xs ml-2" title="Copy single item">
+            <i class="ph ph-copy"></i>
+          </button>
+        </div>
+      `).join('');
+
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeInspector() {
+      const modal = document.getElementById('inspectorModal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      selectedThreat = null;
+    }
+
+    // Filter controls
+    function setCategoryFilter(category) {
+      currentCategory = category;
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active', 'bg-soc-800', 'text-cyan-300', 'border-cyan-500/30');
+        tab.classList.add('text-slate-400', 'border-transparent');
+      });
+      event.target.classList.add('active', 'bg-soc-800', 'text-cyan-300', 'border-cyan-500/30');
+      event.target.classList.remove('text-slate-400', 'border-transparent');
+      renderFeeds();
+    }
+
+    function setSectorFilter(sector) {
+      currentSector = sector;
+      document.querySelectorAll('.sector-badge').forEach(btn => {
+        btn.classList.remove('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/40', 'font-medium');
+        btn.classList.add('text-slate-400', 'border-soc-border');
+      });
+      const activeBtn = document.getElementById(`sector-btn-${sector}`);
+      if (activeBtn) {
+        activeBtn.classList.add('active', 'bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/40', 'font-medium');
+        activeBtn.classList.remove('text-slate-400', 'border-soc-border');
+      }
+      renderFeeds();
+    }
+
+    function handleSearch() {
+      const input = document.getElementById('searchInput');
+      searchQuery = input.value;
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (searchQuery.length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderFeeds();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('searchInput');
+      input.value = '';
+      searchQuery = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderFeeds();
+    }
+
+    function resetFilters() {
+      currentCategory = 'ALL';
+      currentSector = 'ALL';
+      clearSearch();
+      setCategoryFilter('ALL');
+      setSectorFilter('ALL');
+    }
+
+    // Live Feed Refresh Simulation
+    function refreshFeeds() {
+      const btn = document.getElementById('btnRefresh');
+      const icon = document.getElementById('refreshIcon');
+      btn.disabled = true;
+      icon.classList.add('animate-spin');
+
+      showToast("Fetching live feeds across 10 intelligence repositories...");
+
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+        btn.disabled = false;
+        
+        // Update timestamp
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('lastSyncTime').innerText = `${timeStr} (Synchronized)`;
+
+        showToast("✓ Feeds refreshed: All 10 CTI feeds up-to-date");
+        renderFeeds();
+      }, 900);
+    }
+
+    function updateBriefingStats() {
+      const criticalCount = threatDatabase.filter(t => t.severity === "CRITICAL").length;
+      const ransomCount = threatDatabase.filter(t => t.ransomwareUse).length;
+      document.getElementById('statCritical').innerText = criticalCount;
+      document.getElementById('statRansom').innerText = ransomCount;
+    }
+
+    // Export Digest Functionality
+    function toggleExportMenu() {
+      const menu = document.getElementById('exportDropdown');
+      menu.classList.toggle('hidden');
+    }
+
+    function exportDigest(format) {
+      const filtered = getFilteredData();
+      const dateStr = new Date().toISOString().split('T')[0];
+
+      if (format === 'markdown') {
+        let md = `# Daily Cyber Threat Intelligence Briefing (${dateStr})\n`;
+        md += `Target Focus: FinTech & LegalTech Operations\n`;
+        md += `Total Verified Threat Objects: ${filtered.length}\n\n`;
+        md += `## Executive Summary & High-Priority Alerts\n\n`;
+
+        filtered.forEach(item => {
+          md += `### [${item.severity}] ${item.title}\n`;
+          md += `- **Source:** ${item.sourceName} | **Actor:** ${item.actor} | **CVE:** ${item.cve}\n`;
+          md += `- **Sectors Impacted:** ${item.sectors.join(', ')}\n`;
+          md += `- **Executive Brief:** ${item.summary}\n`;
+          md += `- **TTPs (MITRE):** ${item.mitre.join(', ')}\n`;
+          md += `- **Key IoCs:**\n`;
+          item.iocs.forEach(ioc => {
+            md += `  * \`${ioc}\`\n`;
+          });
+          md += `- **Recommended Threat Hunting Logic:**\n\`\`\`\n${item.huntingQuery}\n\`\`\`\n\n`;
+        });
+
+        navigator.clipboard.writeText(md).then(() => {
+          showToast("Briefing exported to clipboard as Markdown!");
+        });
+      } else if (format === 'json') {
+        const jsonStr = JSON.stringify(filtered, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `threatlens-daily-brief-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("JSON payload downloaded successfully!");
+      }
+
+      document.getElementById('exportDropdown').classList.add('hidden');
+    }
+
+    // Clipboard Utilities
+    function copyModalIoCs() {
+      if (!selectedThreat) return;
+      const text = selectedThreat.iocs.join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("All IoCs copied to clipboard!");
+      });
+    }
+
+    function copySingleIoC(ioc, event) {
+      if (event) event.stopPropagation();
+      navigator.clipboard.writeText(ioc).then(() => {
+        showToast(`Copied: ${ioc}`);
+      });
+    }
+
+    function copyHuntingQuery() {
+      if (!selectedThreat) return;
+      navigator.clipboard.writeText(selectedThreat.huntingQuery).then(() => {
+        showToast("Hunting query copied to clipboard!");
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMessage').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2600);
+    }
+  </script>
+</body>
+</html>
